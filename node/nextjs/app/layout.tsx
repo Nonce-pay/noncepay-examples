@@ -1,4 +1,4 @@
-export const metadata = { title: 'TrezorPay checkout example' }
+export const metadata = { title: 'NoncePay checkout example' }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

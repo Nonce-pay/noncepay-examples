@@ -1,8 +1,8 @@
 <?php
 
-require __DIR__ . '/trezorpay.php';
+require __DIR__ . '/noncepay.php';
 
-$PUBLIC_URL = rtrim(env('PUBLIC_URL'), '/'); // where TrezorPay can reach this server
+$PUBLIC_URL = rtrim(env('PUBLIC_URL'), '/'); // where NoncePay can reach this server
 $WALLET = env('WALLET'); // your wallet: payments are forwarded there
 $TICKER = env('TICKER', 'trc20/usdt');
 $PRICE_USD = '49.90';
@@ -25,10 +25,10 @@ if ($method === 'GET' && $path === '/') {
 if ($method === 'POST' && $path === '/orders') {
     // The callback URL identifies the payment address: one per order, never reused.
     $id = bin2hex(random_bytes(16));
-    $callback = "{$PUBLIC_URL}/trezorpay/callback?order={$id}";
-    $created = trezorpay("/{$TICKER}/create/", ['callback' => $callback, 'address' => $WALLET, 'pending' => 1]);
-    $price = trezorpay("/{$TICKER}/convert/", ['value' => $PRICE_USD, 'from' => 'usd']);
-    $qr = trezorpay("/{$TICKER}/qrcode/", ['address' => $created['address_in'], 'value' => $price['value_coin'], 'size' => 240]);
+    $callback = "{$PUBLIC_URL}/noncepay/callback?order={$id}";
+    $created = noncepay("/{$TICKER}/create/", ['callback' => $callback, 'address' => $WALLET, 'pending' => 1]);
+    $price = noncepay("/{$TICKER}/convert/", ['value' => $PRICE_USD, 'from' => 'usd']);
+    $qr = noncepay("/{$TICKER}/qrcode/", ['address' => $created['address_in'], 'value' => $price['value_coin'], 'size' => 240]);
     with_orders(function (array &$orders) use ($id, $created, $price, $qr) {
         $orders[$id] = [
             'address' => $created['address_in'],
@@ -62,9 +62,9 @@ if ($method === 'GET' && preg_match('#^/orders/([0-9a-f]{32})$#', $path, $match)
     return;
 }
 
-if ($method === 'GET' && $path === '/trezorpay/callback') {
+if ($method === 'GET' && $path === '/noncepay/callback') {
     // GET callbacks are signed over the full URL, exactly as we receive it.
-    if (!trezorpay_verify($PUBLIC_URL . $_SERVER['REQUEST_URI'], $_SERVER['HTTP_X_CA_SIGNATURE'] ?? null)) {
+    if (!noncepay_verify($PUBLIC_URL . $_SERVER['REQUEST_URI'], $_SERVER['HTTP_X_CA_SIGNATURE'] ?? null)) {
         http_response_code(401);
         echo 'Bad signature';
         return;

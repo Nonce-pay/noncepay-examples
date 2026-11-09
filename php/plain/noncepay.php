@@ -1,6 +1,6 @@
 <?php
 
-const TREZORPAY_API = 'https://api.trezorpay.com';
+const NONCEPAY_API = 'https://api.noncepay.app';
 
 function env(string $name, ?string $default = null): string
 {
@@ -14,9 +14,9 @@ function env(string $name, ?string $default = null): string
     return $value;
 }
 
-function trezorpay(string $path, array $params = []): array
+function noncepay(string $path, array $params = []): array
 {
-    $url = TREZORPAY_API . $path . ($params ? '?' . http_build_query($params) : '');
+    $url = NONCEPAY_API . $path . ($params ? '?' . http_build_query($params) : '');
     $context = stream_context_create(['http' => ['timeout' => 15, 'ignore_errors' => true]]);
     $body = json_decode((string) file_get_contents($url, false, $context), true);
     if (($body['status'] ?? '') !== 'success') {
@@ -25,32 +25,32 @@ function trezorpay(string $path, array $params = []): array
     return $body;
 }
 
-// The public key never changes: cache it, or pin it with TREZORPAY_PUBLIC_KEY.
-function trezorpay_public_key(): string
+// The public key never changes: cache it, or pin it with NONCEPAY_PUBLIC_KEY.
+function noncepay_public_key(): string
 {
-    $pinned = getenv('TREZORPAY_PUBLIC_KEY');
+    $pinned = getenv('NONCEPAY_PUBLIC_KEY');
     if ($pinned) {
         return $pinned;
     }
-    $cache = sys_get_temp_dir() . '/trezorpay-pubkey.pem';
+    $cache = sys_get_temp_dir() . '/noncepay-pubkey.pem';
     if (!is_file($cache)) {
-        file_put_contents($cache, trezorpay('/pubkey/')['pubkey']);
+        file_put_contents($cache, noncepay('/pubkey/')['pubkey']);
     }
     return (string) file_get_contents($cache);
 }
 
-function trezorpay_verify(string $data, ?string $signature): bool
+function noncepay_verify(string $data, ?string $signature): bool
 {
     if (!$signature) {
         return false;
     }
-    return openssl_verify($data, base64_decode($signature), trezorpay_public_key(), OPENSSL_ALGO_SHA256) === 1;
+    return openssl_verify($data, base64_decode($signature), noncepay_public_key(), OPENSSL_ALGO_SHA256) === 1;
 }
 
 // Use your database in a real shop. This file store is enough for one PHP process.
 function with_orders(callable $change)
 {
-    $file = fopen(sys_get_temp_dir() . '/trezorpay-orders.json', 'c+');
+    $file = fopen(sys_get_temp_dir() . '/noncepay-orders.json', 'c+');
     flock($file, LOCK_EX);
     $orders = json_decode(stream_get_contents($file) ?: '{}', true);
     $result = $change($orders);

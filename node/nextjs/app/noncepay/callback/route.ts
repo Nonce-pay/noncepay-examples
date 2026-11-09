@@ -1,4 +1,4 @@
-import { add, compare, orders, PUBLIC_URL, verify } from '@/lib/trezorpay'
+import { add, compare, orders, PUBLIC_URL, verify } from '@/lib/noncepay'
 
 export async function GET(request: Request) {
   // GET callbacks are signed over the full URL, exactly as we receive it.

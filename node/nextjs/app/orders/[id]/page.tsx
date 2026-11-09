@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { orders, TICKER } from '@/lib/trezorpay'
+import { orders, TICKER } from '@/lib/noncepay'
 
 export const dynamic = 'force-dynamic'
 

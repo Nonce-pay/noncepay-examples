@@ -1,4 +1,4 @@
-# TrezorPay + plain PHP
+# NoncePay + plain PHP
 
 PHP 8.1 or later with the `openssl` and `bcmath` extensions. No framework, no Composer.
 
@@ -11,12 +11,12 @@ seconds: **received** when the payment is seen, **paid** once it is forwarded to
 
 | Variable               | Meaning                                                                           |
 | ---------------------- | --------------------------------------------------------------------------------- |
-| `PUBLIC_URL`           | Public base URL of this server, reachable by TrezorPay (a tunnel on your machine) |
+| `PUBLIC_URL`           | Public base URL of this server, reachable by NoncePay (a tunnel on your machine) |
 | `WALLET`               | Your wallet on the ticker's network: every payment is forwarded there             |
 | `TICKER`               | Optional, `trc20/usdt` by default                                                 |
-| `TREZORPAY_PUBLIC_KEY` | Optional, pins the callback key instead of fetching it from `/pubkey/`            |
+| `NONCEPAY_PUBLIC_KEY` | Optional, pins the callback key instead of fetching it from `/pubkey/`            |
 
-- [`trezorpay.php`](trezorpay.php): API calls and signature check, usable on its own.
+- [`noncepay.php`](noncepay.php): API calls and signature check, usable on its own.
 - [`index.php`](index.php): the shop and the callback handler.
 
 See the [main README](../../README.md) for how the flow works.

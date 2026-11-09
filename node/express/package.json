@@ -1,5 +1,5 @@
 {
-  "name": "trezorpay-example-express",
+  "name": "noncepay-example-express",
   "private": true,
   "type": "module",
   "scripts": {

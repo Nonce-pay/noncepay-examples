@@ -1,5 +1,5 @@
 {
-  "name": "trezorpay-example-nextjs",
+  "name": "noncepay-example-nextjs",
   "private": true,
   "scripts": {
     "dev": "next dev",

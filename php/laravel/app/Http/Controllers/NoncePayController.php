@@ -11,9 +11,9 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use RuntimeException;
 
-class TrezorPayController extends Controller
+class NoncePayController extends Controller
 {
-    private const API = 'https://api.trezorpay.com';
+    private const API = 'https://api.noncepay.app';
 
     private const PRICE_USD = '49.90';
 
@@ -24,13 +24,13 @@ class TrezorPayController extends Controller
 
     public function create()
     {
-        $ticker = config('services.trezorpay.ticker');
+        $ticker = config('services.noncepay.ticker');
         $id = (string) Str::uuid();
         // The callback URL identifies the payment address: one per order, never reused.
-        $callback = rtrim(config('services.trezorpay.public_url'), '/') . "/trezorpay/callback?order={$id}";
+        $callback = rtrim(config('services.noncepay.public_url'), '/') . "/noncepay/callback?order={$id}";
         $created = $this->api("/{$ticker}/create/", [
             'callback' => $callback,
-            'address' => config('services.trezorpay.wallet'),
+            'address' => config('services.noncepay.wallet'),
             'pending' => 1,
         ]);
         $price = $this->api("/{$ticker}/convert/", ['value' => self::PRICE_USD, 'from' => 'usd']);
@@ -60,7 +60,7 @@ class TrezorPayController extends Controller
     public function callback(Request $request)
     {
         // GET callbacks are signed over the full URL, exactly as we receive it.
-        $signed = rtrim(config('services.trezorpay.public_url'), '/') . $request->getRequestUri();
+        $signed = rtrim(config('services.noncepay.public_url'), '/') . $request->getRequestUri();
         if (! $this->verify($signed, $request->header('x-ca-signature'))) {
             return response('Bad signature', 401);
         }
@@ -114,9 +114,9 @@ class TrezorPayController extends Controller
         if (! $signature) {
             return false;
         }
-        // The public key never changes: cache it, or pin it with TREZORPAY_PUBLIC_KEY.
-        $key = config('services.trezorpay.public_key')
-            ?: Cache::rememberForever('trezorpay.pubkey', fn () => $this->api('/pubkey/')['pubkey']);
+        // The public key never changes: cache it, or pin it with NONCEPAY_PUBLIC_KEY.
+        $key = config('services.noncepay.public_key')
+            ?: Cache::rememberForever('noncepay.pubkey', fn () => $this->api('/pubkey/')['pubkey']);
 
         return openssl_verify($data, base64_decode($signature), $key, OPENSSL_ALGO_SHA256) === 1;
     }

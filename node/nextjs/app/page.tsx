@@ -1,4 +1,4 @@
-import { PRICE_USD } from '@/lib/trezorpay'
+import { PRICE_USD } from '@/lib/noncepay'
 
 export default function Checkout() {
   return (

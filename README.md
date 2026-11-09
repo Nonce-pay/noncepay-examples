@@ -1,8 +1,8 @@
-# TrezorPay examples
+# NoncePay examples
 
-Ready-to-run examples for accepting crypto payments with [TrezorPay](https://trezorpay.com), the non-custodial crypto
+Ready-to-run examples for accepting crypto payments with [NoncePay](https://noncepay.app), the non-custodial crypto
 payment API. Each one is a tiny shop: it creates a payment address for an order, shows the amount and a QR code, and
-marks the order paid from TrezorPay's signed callback.
+marks the order paid from NoncePay's signed callback.
 
 Accept BTC, USDT, USDC, ETH, SOL, LTC, DOGE, BNB, TRX and 80+ coins and tokens on 13 networks. Every payment is
 forwarded to your own wallet minus 1.25%. **No account, no API key.**
@@ -18,27 +18,27 @@ forwarded to your own wallet minus 1.25%. **No account, no API key.**
 
 ## How a crypto payment works
 
-1. **Create an address.** Your server calls `GET https://api.trezorpay.com/{ticker}/create/` with a `callback` URL
+1. **Create an address.** Your server calls `GET https://api.noncepay.app/{ticker}/create/` with a `callback` URL
    and the `address` of your wallet. The callback URL identifies the payment address: use one per order.
 2. **Show it to your customer.** Convert your price with `/{ticker}/convert/` and display the address with a QR code
    from `/{ticker}/qrcode/`.
-3. **Receive the callback.** With `pending=1`, TrezorPay calls your URL when the payment is seen, then again with
+3. **Receive the callback.** With `pending=1`, NoncePay calls your URL when the payment is seen, then again with
    `pending=0` once it is confirmed and forwarded to your wallet.
 4. **Verify and answer.** Check the `x-ca-signature` header (RSA-SHA256 of the full callback URL, key from
    `/pubkey/`), record the payment once per `uuid`, and answer `*ok*`. Anything else is retried for 3 days.
 
 ```bash
-curl "https://api.trezorpay.com/trc20/usdt/create/?callback=https%3A%2F%2Fshop.example%2Fpaid%3Forder%3D1042&address=YOUR_TRON_WALLET&pending=1"
+curl "https://api.noncepay.app/trc20/usdt/create/?callback=https%3A%2F%2Fshop.example%2Fpaid%3Forder%3D1042&address=YOUR_TRON_WALLET&pending=1"
 ```
 
 ## Running an example
 
 Every example needs:
 
-- `PUBLIC_URL`: the public base URL of your server. TrezorPay must reach it to send callbacks, so on your machine
+- `PUBLIC_URL`: the public base URL of your server. NoncePay must reach it to send callbacks, so on your machine
   open a tunnel, for example `cloudflared tunnel --url http://localhost:3000` or `ngrok http 3000`.
 - `WALLET`: your wallet on the ticker's network. Every payment is forwarded there.
-- `TICKER` (optional): `trc20/usdt` by default. See the [supported coins](https://trezorpay.com/docs/coins/).
+- `TICKER` (optional): `trc20/usdt` by default. See the [supported coins](https://noncepay.app/docs/coins/).
 
 Then open the shop, click **Pay**, and send a payment above the coin's minimum. It lands in your wallet, and the order
 page turns to **paid**.
@@ -54,12 +54,12 @@ page turns to **paid**.
 
 ## Links
 
-- [Documentation](https://trezorpay.com/docs/) and [quickstart](https://trezorpay.com/docs/quickstart/)
-- [Callbacks and signature](https://trezorpay.com/docs/callbacks/)
-- [Fees](https://trezorpay.com/docs/fees/): 1.25%, down to 0.25% with volume
-- [OpenAPI spec](https://trezorpay.com/openapi.yaml), [llms.txt](https://trezorpay.com/llms.txt) and an
-  [integration prompt for AI coding agents](https://trezorpay.com/prompt.md)
-- [Status](https://status.trezorpay.com)
+- [Documentation](https://noncepay.app/docs/) and [quickstart](https://noncepay.app/docs/quickstart/)
+- [Callbacks and signature](https://noncepay.app/docs/callbacks/)
+- [Fees](https://noncepay.app/docs/fees/): 1.25%, down to 0.25% with volume
+- [OpenAPI spec](https://noncepay.app/openapi.yaml), [llms.txt](https://noncepay.app/llms.txt) and an
+  [integration prompt for AI coding agents](https://noncepay.app/prompt.md)
+- [Status](https://status.noncepay.app)
 
 ## License
 

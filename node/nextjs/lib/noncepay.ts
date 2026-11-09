@@ -1,7 +1,7 @@
 import { createVerify } from 'node:crypto'
 
-const API = 'https://api.trezorpay.com'
-export const PUBLIC_URL = required('PUBLIC_URL').replace(/\/$/, '') // where TrezorPay can reach this app
+const API = 'https://api.noncepay.app'
+export const PUBLIC_URL = required('PUBLIC_URL').replace(/\/$/, '') // where NoncePay can reach this app
 export const WALLET = required('WALLET') // your wallet: payments are forwarded there
 export const TICKER = process.env.TICKER ?? 'trc20/usdt'
 export const PRICE_USD = '49.90'
@@ -19,7 +19,7 @@ export type Order = {
 const store = globalThis as unknown as { orders?: Map<string, Order> }
 export const orders = (store.orders ??= new Map())
 
-export async function trezorpay<T = Record<string, string>>(
+export async function noncepay<T = Record<string, string>>(
   path: string,
   params: Record<string, string | number> = {}
 ): Promise<T> {
@@ -30,13 +30,13 @@ export async function trezorpay<T = Record<string, string>>(
   return body
 }
 
-// The public key never changes: fetch it once, or pin it with TREZORPAY_PUBLIC_KEY.
+// The public key never changes: fetch it once, or pin it with NONCEPAY_PUBLIC_KEY.
 let publicKey: Promise<string> | undefined
 export async function verify(data: string, signature: string | null): Promise<boolean> {
   if (!signature) return false
-  publicKey ??= process.env.TREZORPAY_PUBLIC_KEY
-    ? Promise.resolve(process.env.TREZORPAY_PUBLIC_KEY)
-    : trezorpay<{ pubkey: string }>('/pubkey/').then((body) => body.pubkey)
+  publicKey ??= process.env.NONCEPAY_PUBLIC_KEY
+    ? Promise.resolve(process.env.NONCEPAY_PUBLIC_KEY)
+    : noncepay<{ pubkey: string }>('/pubkey/').then((body) => body.pubkey)
   return createVerify('sha256')
     .update(data)
     .verify(await publicKey, signature, 'base64')

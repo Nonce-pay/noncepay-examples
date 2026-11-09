@@ -1,4 +1,4 @@
-# TrezorPay + FastAPI
+# NoncePay + FastAPI
 
 Python 3.10 or later.
 
@@ -13,10 +13,10 @@ seconds: **received** when the payment is seen, **paid** once it is forwarded to
 
 | Variable               | Meaning                                                                           |
 | ---------------------- | --------------------------------------------------------------------------------- |
-| `PUBLIC_URL`           | Public base URL of this server, reachable by TrezorPay (a tunnel on your machine) |
+| `PUBLIC_URL`           | Public base URL of this server, reachable by NoncePay (a tunnel on your machine) |
 | `WALLET`               | Your wallet on the ticker's network: every payment is forwarded there             |
 | `TICKER`               | Optional, `trc20/usdt` by default                                                 |
-| `TREZORPAY_PUBLIC_KEY` | Optional, pins the callback key instead of fetching it from `/pubkey/`            |
+| `NONCEPAY_PUBLIC_KEY` | Optional, pins the callback key instead of fetching it from `/pubkey/`            |
 
 Everything is in [`main.py`](main.py).
 See the [main README](../../README.md) for how the flow works.

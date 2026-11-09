@@ -1,15 +1,15 @@
 import { createVerify, randomUUID } from 'node:crypto'
 import express from 'express'
 
-const API = 'https://api.trezorpay.com'
+const API = 'https://api.noncepay.app'
 const PORT = Number(process.env.PORT ?? 3000)
-const PUBLIC_URL = required('PUBLIC_URL').replace(/\/$/, '') // where TrezorPay can reach this server
+const PUBLIC_URL = required('PUBLIC_URL').replace(/\/$/, '') // where NoncePay can reach this server
 const WALLET = required('WALLET') // your wallet: payments are forwarded there
 const TICKER = process.env.TICKER ?? 'trc20/usdt'
 const PRICE_USD = '49.90'
 
-// The public key never changes: fetch it once, or pin it with TREZORPAY_PUBLIC_KEY.
-const PUBLIC_KEY = process.env.TREZORPAY_PUBLIC_KEY ?? (await trezorpay('/pubkey/')).pubkey
+// The public key never changes: fetch it once, or pin it with NONCEPAY_PUBLIC_KEY.
+const PUBLIC_KEY = process.env.NONCEPAY_PUBLIC_KEY ?? (await noncepay('/pubkey/')).pubkey
 
 // Use your database in a real shop.
 const orders = new Map()
@@ -29,10 +29,10 @@ app.post('/orders', async (req, res, next) => {
   try {
     // The callback URL identifies the payment address: one per order, never reused.
     const id = randomUUID()
-    const callback = `${PUBLIC_URL}/trezorpay/callback?order=${id}`
-    const created = await trezorpay(`/${TICKER}/create/`, { callback, address: WALLET, pending: 1 })
-    const price = await trezorpay(`/${TICKER}/convert/`, { value: PRICE_USD, from: 'usd' })
-    const qr = await trezorpay(`/${TICKER}/qrcode/`, {
+    const callback = `${PUBLIC_URL}/noncepay/callback?order=${id}`
+    const created = await noncepay(`/${TICKER}/create/`, { callback, address: WALLET, pending: 1 })
+    const price = await noncepay(`/${TICKER}/convert/`, { value: PRICE_USD, from: 'usd' })
+    const qr = await noncepay(`/${TICKER}/qrcode/`, {
       address: created.address_in,
       value: price.value_coin,
       size: 240,
@@ -66,7 +66,7 @@ app.get('/orders/:id', (req, res) => {
   )
 })
 
-app.get('/trezorpay/callback', (req, res) => {
+app.get('/noncepay/callback', (req, res) => {
   // GET callbacks are signed over the full URL, exactly as we receive it.
   if (!verify(PUBLIC_URL + req.originalUrl, req.get('x-ca-signature'))) {
     return res.status(401).send('Bad signature')
@@ -92,7 +92,7 @@ function verify(data, signature) {
   return createVerify('sha256').update(data).verify(PUBLIC_KEY, signature, 'base64')
 }
 
-async function trezorpay(path, params = {}) {
+async function noncepay(path, params = {}) {
   const url = new URL(path, API)
   for (const [key, value] of Object.entries(params)) url.searchParams.set(key, String(value))
   const body = await (await fetch(url)).json()

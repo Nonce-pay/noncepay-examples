@@ -20,7 +20,7 @@ return new class extends Migration
         });
 
         Schema::create('order_payments', function (Blueprint $table) {
-            // TrezorPay's payment id: unique, so a retried callback is never counted twice.
+            // NoncePay's payment id: unique, so a retried callback is never counted twice.
             $table->string('uuid')->primary();
             $table->foreignUuid('order_id')->constrained();
             $table->string('value_coin');

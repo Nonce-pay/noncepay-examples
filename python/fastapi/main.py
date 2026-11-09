@@ -10,14 +10,14 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, PlainTextResponse, RedirectResponse
 
-API = "https://api.trezorpay.com"
-PUBLIC_URL = os.environ["PUBLIC_URL"].rstrip("/")  # where TrezorPay can reach this server
+API = "https://api.noncepay.app"
+PUBLIC_URL = os.environ["PUBLIC_URL"].rstrip("/")  # where NoncePay can reach this server
 WALLET = os.environ["WALLET"]  # your wallet: payments are forwarded there
 TICKER = os.environ.get("TICKER", "trc20/usdt")
 PRICE_USD = "49.90"
 
 
-async def trezorpay(path, **params):
+async def noncepay(path, **params):
     async with httpx.AsyncClient(timeout=15) as client:
         body = (await client.get(f"{API}{path}", params=params)).json()
     if body.get("status") != "success":
@@ -25,9 +25,9 @@ async def trezorpay(path, **params):
     return body
 
 
-# The public key never changes: fetch it once, or pin it with TREZORPAY_PUBLIC_KEY.
+# The public key never changes: fetch it once, or pin it with NONCEPAY_PUBLIC_KEY.
 PUBLIC_KEY = serialization.load_pem_public_key(
-    (os.environ.get("TREZORPAY_PUBLIC_KEY") or httpx.get(f"{API}/pubkey/").json()["pubkey"]).encode()
+    (os.environ.get("NONCEPAY_PUBLIC_KEY") or httpx.get(f"{API}/pubkey/").json()["pubkey"]).encode()
 )
 
 
@@ -63,10 +63,10 @@ async def checkout():
 async def create_order():
     # The callback URL identifies the payment address: one per order, never reused.
     order_id = str(uuid.uuid4())
-    callback = f"{PUBLIC_URL}/trezorpay/callback?order={order_id}"
-    created = await trezorpay(f"/{TICKER}/create/", callback=callback, address=WALLET, pending=1)
-    price = await trezorpay(f"/{TICKER}/convert/", value=PRICE_USD, **{"from": "usd"})
-    qr = await trezorpay(f"/{TICKER}/qrcode/", address=created["address_in"], value=price["value_coin"], size=240)
+    callback = f"{PUBLIC_URL}/noncepay/callback?order={order_id}"
+    created = await noncepay(f"/{TICKER}/create/", callback=callback, address=WALLET, pending=1)
+    price = await noncepay(f"/{TICKER}/convert/", value=PRICE_USD, **{"from": "usd"})
+    qr = await noncepay(f"/{TICKER}/qrcode/", address=created["address_in"], value=price["value_coin"], size=240)
     orders[order_id] = {
         "address": created["address_in"],
         "amount": price["value_coin"],
@@ -93,7 +93,7 @@ async def show_order(order_id: str):
     )
 
 
-@app.get("/trezorpay/callback", response_class=PlainTextResponse)
+@app.get("/noncepay/callback", response_class=PlainTextResponse)
 async def callback(request: Request):
     # GET callbacks are signed over the full URL, exactly as we receive it.
     signed = f"{PUBLIC_URL}{request.url.path}?{request.scope['query_string'].decode()}"

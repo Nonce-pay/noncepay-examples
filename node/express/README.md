@@ -1,4 +1,4 @@
-# TrezorPay + Express
+# NoncePay + Express
 
 Node.js 22 or later.
 
@@ -13,11 +13,11 @@ seconds: **received** when the payment is seen, **paid** once it is forwarded to
 
 | Variable               | Meaning                                                                           |
 | ---------------------- | --------------------------------------------------------------------------------- |
-| `PUBLIC_URL`           | Public base URL of this server, reachable by TrezorPay (a tunnel on your machine) |
+| `PUBLIC_URL`           | Public base URL of this server, reachable by NoncePay (a tunnel on your machine) |
 | `WALLET`               | Your wallet on the ticker's network: every payment is forwarded there             |
 | `TICKER`               | Optional, `trc20/usdt` by default                                                 |
-| `TREZORPAY_PUBLIC_KEY` | Optional, pins the callback key instead of fetching it from `/pubkey/`            |
+| `NONCEPAY_PUBLIC_KEY` | Optional, pins the callback key instead of fetching it from `/pubkey/`            |
 
-Everything is in [`server.js`](server.js): `POST /orders` creates the address, `GET /trezorpay/callback` verifies and records the payment.
+Everything is in [`server.js`](server.js): `POST /orders` creates the address, `GET /noncepay/callback` verifies and records the payment.
 
 See the [main README](../../README.md) for how the flow works.
